@@ -30,4 +30,4 @@
 /.bundle
 /Gemfile.lock
 /Gemfile.local
-
+/git_repositories

@@ -1,0 +1,2 @@
+var team_member = $("<%= escape_javascript(render :partial => "team_member", :format => "html", :locals => { :team_member => @team_member }) %>").appendTo("#team_members").hide().fadeIn();
+po_team_colourize(team_member);

@@ -1,0 +1,91 @@
+<div class="contextual">
+  <% if User.current.roles_for_project(@project).first.permissions.include?(:edit_contracts) %>
+    <%= link_to l(:label_add_time_entries), "/projects/#{@project.identifier}/contracts/#{@contract.id}/add_time_entries" %>
+  <% end %>
+</div>
+
+<h2>
+  <%= @contract.title %> 
+  <% if User.current.roles_for_project(@project).first.permissions.include?(:edit_contracts) %>
+    <%= link_to image_tag("/images/edit.png"), "#{@contract.id}/edit", :title => l(:label_edit) %>
+  <% end %>
+  <% if User.current.roles_for_project(@project).first.permissions.include?(:delete_contracts) %>
+    <%= link_to image_tag("/images/delete.png"), "#{@contract.id}", :method => :delete, 
+      :title => l(:label_delete), :confirm => l(:text_are_you_sure_delete_title, @contract.title) %>
+  <% end %>
+</h2>
+
+<div>
+	<table>
+		<tr>
+			<td colspan="2"><p><%= @contract.description %></p></td>
+		</tr>
+		<tr>
+			<td class="contract-summary-td">
+				<table class="contract-summary list">
+					<thead>
+						<tr>
+							<th><%= l(:field_agreement_date) %></th>
+							<th><%= l(:label_date_period) %></th>
+							<% if User.current.roles_for_project(@project).first.permissions.include?(:view_hourly_rate) %>
+								<th><%= l(:field_hourly_rate) %></th> 
+							<% end %>
+							<th><%= l(:label_amount_purchased) %></th>
+							<% if !@contract.contract_url.empty? %>
+								<th><%= l(:label_contract) %></th>
+							<% end %>
+							<% if !@contract.invoice_url.empty? %>
+								<th><%= l(:label_invoice) %></th>
+							<% end %>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="<%= cycle("odd", "even") %>">
+							<td><%= format_date(@contract.agreement_date)  %></td>
+							<td><%= format_date(@contract.start_date) %> - <%= format_date(@contract.end_date)  %></td>
+							<% if User.current.roles_for_project(@project).first.permissions.include?(:view_hourly_rate) %>
+								<td><%= number_to_currency(@contract.hourly_rate) %></td>
+							<% end %>
+							<td><%= number_to_currency(@contract.purchase_amount) %></td>
+							<% if !@contract.contract_url.empty? %>
+									<td><%= link_to l(:label_view_contract), @contract.contract_url %></td>
+							<% end %>
+							<% if !@contract.invoice_url.empty? %>
+									<td><%= link_to l(:label_view_invoice), @contract.invoice_url %></td>
+							<% end %>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+			<td class="hours-summary-td">
+				<table class="hours-summary list">
+					<thead>
+						<tr>
+							<th><%= l(:label_members) %></th>
+							<th><%= l(:label_hours) %></th>
+						</tr>
+					</thead>
+					<tbody>
+						<% @members.each do |member| %>
+							<tr class="<%= cycle("odd", "even") %>">
+								<td><%= member.name %></td>
+								<td><%= @time_entries.select { |entry| entry.user == member }.sum { |entry| entry.hours } %></td>
+							</tr>
+						<% end %>
+						<tr class="total-hours">
+							<td></td>
+							<td><%= @time_entries.sum { |entry| entry.hours } %></td>
+						</tr>	
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<h3><%= l(:label_time_entries) %></h3>
+<%= render 'time_entries_list' %>
+
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'contracts', :plugin => 'contracts' %>
+<% end %>

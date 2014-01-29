@@ -1,0 +1,12 @@
+# Polish strings go here
+pl:
+  spent_time_title: "Czas pracy"
+  label_total_time: "Łączny czas"
+  label_new_entry: "Nowy wpis"
+  label_add_entry: "Dodaj wpis"
+  weekend: "Weekend"
+  select_issues_option: "Wybierz zagadnienie"
+  issue_not_exists: "Brak zagadnienia"
+  select_project_option: "Wybierz projekt"
+  label_person: "Użytkownik"
+  label_interval: "Zakres danych" 

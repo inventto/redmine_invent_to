@@ -1,0 +1,37 @@
+<%
+issues = Issue.find(:all, :order=>"id DESC", :conditions =>
+                     ["project_id=:p",{:p=>params[:prj]}])
+issues.each do |issue|
+  next if issue.nil? || !issue.visible?
+  if issue.closed? then
+    next if !params.key?(:all)
+    issueHtml = "<del>"+issue.to_s+"</del>"
+  else
+    issueHtml = issue.to_s
+  end
+%>
+<div style="font-size:14px;">
+<input type="button" onclick="JavaScript:ticket_selected('<%=issue.id%>');" value="<%=l(:button_apply)%>" />
+<%=issueHtml.html_safe%>
+<a href="#"
+  onclick="JavaScript:
+    showModalDialog(
+      '<%=url_for(:controller=>"issues", :action=>"show", :id=>issue.id)%>',
+      window,
+      '');
+    return false;">
+  &#63;
+</a>
+<br/>
+</div>
+<%end%>
+
+<%if !params.key?(:all) then
+    url=url_for(:action=>'ajax_select_ticket', :prj=>params[:prj], :all=>'')%>
+  <a href="#"
+    onclick="JavaScript:
+      ajax_select_tickets('<%=url%>');
+      return false;">
+    [display closed ticket]
+  </a>
+<%end%>

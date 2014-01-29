@@ -1,0 +1,13 @@
+# Spanish strings go here
+es:
+  spent_time_title: "Carga de Horas"
+  label_total_time: "Tiempo total"
+  label_new_entry: "Nueva Entrada de Tiempo"
+  label_add_entry: "A&ntilde;adir Entrada de Tiempo"
+  weekend: "Fin de Semana"
+  select_issues_option: "Seleccione una Petici&oacute;n"
+  issue_not_exists: "Tarea inexistente"
+  select_project_option: "Seleccione un proyecto"
+  label_person: "Usuario"
+  label_interval: "Intervalo"
+

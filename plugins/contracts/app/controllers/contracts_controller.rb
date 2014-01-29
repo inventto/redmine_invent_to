@@ -1,8 +1,9 @@
 class ContractsController < ApplicationController
   unloadable
-  before_filter :find_project, :authorize, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
-                                                     :add_time_entries, :assoc_time_entries_with_contract]
+  before_filter :find_project, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
+                                         :add_time_entries, :assoc_time_entries_with_contract]
   
+  before_filter :authorize
   def index
     @project = Project.find(params[:project_id])
     @contracts = Contract.order("start_date ASC").where(:project_id => sub_projects_ids(@project))

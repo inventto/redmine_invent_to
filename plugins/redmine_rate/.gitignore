@@ -1,7 +1,0 @@
-*.tar.gz
-*.zip
-.DS_Store
-coverage
-doc
-pkg
-rdoc

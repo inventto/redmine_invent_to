@@ -1,0 +1,3 @@
+[submodule "plugins/contracts"]
+	path = plugins/contracts
+	url = https://github.com/bsyzek/redmine-contracts-with-time-tracking-plugin.git

@@ -1,9 +1,9 @@
 class ContractsController < ApplicationController
   unloadable
-  before_filter :find_project, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
+  before_filter :find_project, :only => [:index, :show, :new, :create, :edit, :update, :destroy,
                                          :add_time_entries, :assoc_time_entries_with_contract]
-  
-  before_filter :authorize
+
+  before_filter :authorize, :except => [:contabilizar_pagamentos]
   def index
     @project = Project.find(params[:project_id])
     @contracts = Contract.order("start_date ASC").where(:project_id => sub_projects_ids(@project))
@@ -40,7 +40,7 @@ class ContractsController < ApplicationController
     #                                                    first.permissions.
     #                                                    include?(:view_all_contracts_for_project) }
     @contracts = Contract.all.sort{|c1, c2| c1.start_date - c2.start_date}
-    @contracts.flatten! 
+    @contracts.flatten!
     begin
       if @user
         @contracts.delete_if{|c| not c or c.project.name.include?('$') or not c.title.include? @user.login}
@@ -54,7 +54,7 @@ class ContractsController < ApplicationController
     @total_purchased_hours   = @contracts.sum { |contract| contract.hours_purchased }
     @total_remaining_dollars = @contracts.sum { |contract| contract.amount_remaining }
     @total_remaining_hours   = @contracts.sum { |contract| contract.hours_remaining }
-    
+
     render "index"
   end
 
@@ -90,10 +90,10 @@ class ContractsController < ApplicationController
 
   def update
     @contract = Contract.find(params[:id])
-    params[:contract].delete(:project_id) 
+    params[:contract].delete(:project_id)
     if @contract.update_attributes(params[:contract])
       flash[:notice] = l(:text_contract_updated)
-      redirect_to :action => "show", :id => @contract.id 
+      redirect_to :action => "show", :id => @contract.id
     else
       flash[:error] = "* " + @contract.errors.full_messages.join("</br>* ")
       redirect_to :action => "edit", :id => @contract.id
@@ -125,21 +125,46 @@ class ContractsController < ApplicationController
     @project = @contract.project
     time_entries = params[:time_entries]
     if time_entries != nil
-      time_entries.each do |time_entry| 
+      time_entries.each do |time_entry|
         updated_time_entry = TimeEntry.find(time_entry.first)
         updated_time_entry.contract = @contract
         updated_time_entry.save
       end
     end
 		flash[:error] = l(:text_hours_over_contract, :hours_over => l_hours(-1 * @contract.hours_remaining)) unless @contract.hours_remaining >= 0
-    redirect_to "/projects/#{@contract.project.id}/contracts/#{@contract.id}" 
+    redirect_to "/projects/#{@contract.project.id}/contracts/#{@contract.id}"
+  end
+
+  def contabilizar_pagamentos
+      valor = params[:valor]
+      projeto_id = params[:project_id]
+      contracts_id = params[:contract_id]
+      contrato = Contract.find(contracts_id)
+      puts "valor #{valor}"
+      puts " valor parse #{ (-1 * valor.to_i).to_s } "
+
+      [12,23].each do |activity|
+          te = TimeEntry.new :user => User.find(29), :activity => TimeEntryActivity.find(activity)
+          te.project_id = projeto_id
+          te.spent_on = Time.now
+          te.comments = "Pagamento"
+          te.hours = activity == 12 ? (-1 * valor.to_i).to_s : valor
+          te.contract = contrato
+          te.save!
+          p "SALVO!"
+      end
+    begin
+
+    end
+
+    redirect_to "/projects/#{projeto_id}/contracts/#{contracts_id}"
   end
 
   private
 
   def find_project
     #@project variable must be set before calling the authorize filter
-    @project = Project.find(params[:project_id]) 
+    @project = Project.find(params[:project_id])
   end
 
 end

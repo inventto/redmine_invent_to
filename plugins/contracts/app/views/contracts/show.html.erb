@@ -4,13 +4,19 @@
   <% end %>
 </div>
 
+
 <h2>
-  <%= @contract.title %> 
+  <%= @contract.title %>
   <% if User.current.roles_for_project(@project).first.permissions.include?(:edit_contracts) %>
     <%= link_to image_tag("/images/edit.png"), "#{@contract.id}/edit", :title => l(:label_edit) %>
   <% end %>
+<div>
+    <%= form_tag("/projects/#{@project.id}/contracts/#{@contract.id}/payment", :method => "post", :id => 'form_administrativo') %>
+    <%= content_tag :label, "Valor: "%><%= content_tag(:input, "", :name => "valor") %><br />
+    <%= submit_tag "Contabilizar"%>
+</div>
   <% if User.current.roles_for_project(@project).first.permissions.include?(:delete_contracts) %>
-    <%= link_to image_tag("/images/delete.png"), "#{@contract.id}", :method => :delete, 
+    <%= link_to image_tag("/images/delete.png"), "#{@contract.id}", :method => :delete,
       :title => l(:label_delete), :confirm => l(:text_are_you_sure_delete_title, @contract.title) %>
   <% end %>
 </h2>
@@ -28,7 +34,7 @@
 							<th><%= l(:field_agreement_date) %></th>
 							<th><%= l(:label_date_period) %></th>
 							<% if User.current.roles_for_project(@project).first.permissions.include?(:view_hourly_rate) %>
-								<th><%= l(:field_hourly_rate) %></th> 
+								<th><%= l(:field_hourly_rate) %></th>
 							<% end %>
 							<th><%= l(:label_amount_purchased) %></th>
 							<% if !@contract.contract_url.empty? %>
@@ -75,7 +81,7 @@
 						<tr class="total-hours">
 							<td></td>
 							<td><%= @time_entries.sum { |entry| entry.hours } %></td>
-						</tr>	
+						</tr>
 					</tbody>
 				</table>
 			</td>

@@ -2,6 +2,7 @@
 # See: http://guides.rubyonrails.org/routing.html
 #
 
+match 'projects/:project_id/contracts/:contract_id/payment' => 'contracts#contabilizar_pagamentos', :via => :post
 match 'contracts/all'                                       => 'contracts#all',     :via => :get
 match 'contracts/:id'                                       => 'contracts#destroy', :via => :delete
 match 'contracts/:id/edit'                                  => 'contracts#edit',    :via => :get
@@ -13,8 +14,8 @@ match 'projects/:project_id/contracts'                      => 'contracts#create
 match 'projects/:project_id/contracts/:id'                  => 'contracts#update',  :via => :put
 match 'projects/:project_id/contracts/:id'                  => 'contracts#destroy', :via => :delete
 match 'projects/:project_id/contracts/:id/add_time_entries' => 'contracts#add_time_entries', :via => :get
-match 'projects/:project_id/contracts/:id/assoc_time_entries_with_contract' => 
-        'contracts#assoc_time_entries_with_contract', 
+match 'projects/:project_id/contracts/:id/assoc_time_entries_with_contract' =>
+        'contracts#assoc_time_entries_with_contract',
         :via => :put
 
 

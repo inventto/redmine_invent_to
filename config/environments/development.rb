@@ -16,4 +16,6 @@ RedmineApp::Application.configure do
   config.action_mailer.raise_delivery_errors = false
 
   config.active_support.deprecation = :log
+
+  config.secret_token = "c46b49a979484f2c36593e01eefea1b2f9cf182564f03329b6e06fd803ef652a65c0aca6f18c2aded7aecae25c39bd03602ce41f3bd17490"
 end

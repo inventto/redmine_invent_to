@@ -1,1 +1,1 @@
-ruby script/rails server webrick -e production -p 3833 -d
+thin start -e production -p 3833 -d

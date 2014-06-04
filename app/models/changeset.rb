@@ -260,6 +260,7 @@ class Changeset < ActiveRecord::Base
     if identifier and identifier.to_s != ""
       closed_issues = []
       closed_issues = ActiveSupport::JSON.decode(open("https://api.github.com/repos/#{repository.github_repo}/issues?state=closed&per_page=1000&access_token=#{access_token}").read)
+      puts "JSON >>>>>>>>>>>>>>>>>>>>>>> #{closed_issues}"
       closed_issues.each do |closed_issue|
         if IssueNumber.joins(:issue).where("number = #{closed_issues["number"]} and project_id = #{project_id} and repository_id=#{repository.id}").empty?
          begin

@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rails', '3.2.11'
+gem 'thin'
 gem "jquery-rails", "~> 2.0.2"
 gem "i18n", "~> 0.6.0"
 gem "coderay", "~> 1.0.6"
@@ -12,6 +13,10 @@ gem "webrat"
 gem "faker"
 gem 'unicorn'
 gem 'unicorn-rails'
+
+gem 'capistrano-rails'
+gem 'capistrano-bundler'
+gem 'capistrano-rvm'
 
 # Optional gem for LDAP authentication
 group :ldap do

@@ -1,15 +1,36 @@
 class ContractsController < ApplicationController
   unloadable
-  before_filter :find_project, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
-                                         :add_time_entries, :assoc_time_entries_with_contract]
-  
-  before_filter :authorize
+  before_filter :find_project, :authorize, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
+                                                     :add_time_entries, :assoc_time_entries_with_contract]
+  #before_filter :find_project, :only => [:index, :show, :new, :create, :edit, :update, :destroy, 
+  #                                       :add_time_entries, :assoc_time_entries_with_contract]
+  #before_filter :authorize
   def index
     @project = Project.find(params[:project_id])
     @contracts = Contract.order("start_date ASC").where(:project_id => sub_projects_ids(@project))
     if not @project.name.include?('$')
       @contracts.delete_if{|c| c.project.name.include?('$')}
     end
+    if params["active"] == "true"
+      @contracts.delete_if{|c| c.end_date < Time.now and c.amount_remaining.to_i == 0}
+    end
+
+    if params["remaining"] == "true"
+      @contracts.delete_if{|c| c.amount_remaining.to_i <= 0}
+    end
+
+    if params["pending"] == "true"
+      @contracts.delete_if{|c| c.amount_remaining.to_i >= 0}
+    end
+
+    if not params["ignore"].nil?
+      @contracts.delete_if{|c| c.title.include? params["ignore"]}
+    end
+
+    if params["user"]
+      @contracts.delete_if{|c| not c or not c.title.include? params["user"]}
+    end
+
 =begin
     @total_purchased_dollars = @project.total_amount_purchased
     @total_purchased_hours   = @project.total_hours_purchased
@@ -31,6 +52,7 @@ class ContractsController < ApplicationController
   end
 
   def all
+    raise "FORBIDDEN" if not User.current
     if params["user"]
       @user = User.find_by_login params["user"]
     else
@@ -50,6 +72,22 @@ class ContractsController < ApplicationController
     rescue
       puts "Ignorando"
     end
+    if params["active"] == "true"
+      @contracts.delete_if{|c| c.end_date < Time.now and c.amount_remaining.to_i == 0}
+    end
+
+    if params["remaining"] == "true"
+      @contracts.delete_if{|c| c.amount_remaining.to_i <= 0}
+    end
+
+    if params["pending"] == "true"
+      @contracts.delete_if{|c| c.amount_remaining.to_i >= 0}
+    end
+
+    if not params["ignore"].nil?
+      @contracts.delete_if{|c| c.title.include? params["ignore"]}
+    end
+
     @total_purchased_dollars = @contracts.sum { |contract| contract.purchase_amount }
     @total_purchased_hours   = @contracts.sum { |contract| contract.hours_purchased }
     @total_remaining_dollars = @contracts.sum { |contract| contract.amount_remaining }

@@ -566,20 +566,23 @@ class ApplicationController < ActionController::Base
 
     if identifier and identifier.to_s != ""
       begin
+       logger.warn "https://api.github.com/repos/#{repository.github_repo}/issues?state=closed&per_page=200&access_token=#{Changeset.access_token}"
         content = open("https://api.github.com/repos/#{repository.github_repo}/issues?state=closed&per_page=200&access_token=#{Changeset.access_token}")
         response = content.read 
       rescue Exception => e
         logger.warn "Error to import issues to repository #{repository.identifier}: #{e.message}"
       end
-
+      
       closed_issues = ActiveSupport::JSON.decode(response)
       closed_issues ||= []
 
       logger.warn "Importing Closed #{closed_issues.size}"
       closed_issues.reverse.each do |closed_issue|
         issue_number = IssueNumber.joins(:issue).where("number = #{closed_issue["number"]} and project_id = #{project_id} and repository_id=#{@repository.id}")
+        logger.info "ISSUE NUMBER COLOCANDO NUMBER #{issue_number}"
         if issue_number.empty?
           begin
+            logger.info "USER #{closed_issue["user"]["login"].downcase}"
             issue = Issue.new(
               'subject' => closed_issue["title"],
               'description' => closed_issue["body"],
@@ -591,17 +594,17 @@ class ApplicationController < ActionController::Base
               'project_id' => project_id, # Project Identifier
               'status_id' => 5, # Status ID, 5 = fechda, 2 = em andamento
               'priority_id' => 2, #2 = normal
-              'author_id' => User.find_by_login(closed_issue["user"]["login"].downcase).id
+              'author_id' => (User.find_by_login(closed_issue["user"]["login"].downcase).id rescue 5)
             );
             issue.number = closed_issue["number"].to_i
             issue.origin = "github"
             issue.repository = @repository
 
             if !issue.save
-              logger.warn "=====>ERRORS TO SAVING ISSUE:", issue.errors.full_messages
+              logger.warn "=====>ERRORS TO SAVING ISSUE: #{issue.errors.full_messages}"
             end
           rescue Exception => e
-            logger.warn "=====>RESCUE: ERRORS TO SAVING ISSUE:", e.message
+            logger.warn "=====>RESCUE: ERRORS TO SAVING ISSUE: #{e.message}"
           end
         else
 	  issue = Issue.find(issue_number[0].issue_id)
@@ -621,7 +624,7 @@ class ApplicationController < ActionController::Base
           end
 
           if to_save and !issue.save
-            logger.warn "=====>ERRORS TO UPDATE ISSUE:", issue.errors.full_messages
+            logger.warn "=====>ERRORS TO UPDATE ISSUE: #{issue.errors.full_messages}"
           elsif to_save
             logger.warn "Issue id #{issue.id} updated!"
           end
@@ -638,6 +641,7 @@ class ApplicationController < ActionController::Base
         issue_number = IssueNumber.joins(:issue).where("number = #{opened_issue["number"]} and project_id = #{project_id} and repository_id=#{@repository.id}")
         if issue_number.empty?
           begin
+            logger.info "USER #{opened_issue["user"]["login"].downcase}"
             issue = Issue.new(
               'subject' => opened_issue["title"],
               'description' => opened_issue["body"],
@@ -650,14 +654,14 @@ class ApplicationController < ActionController::Base
               'status_id' => status_id,
               'done_ratio' => 100, 
               'priority_id' => 2, #2 = normal
-              'author_id' => User.find_by_login(opened_issue["user"]["login"].downcase).id
+              'author_id' => (User.find_by_login(opened_issue["user"]["login"].downcase).id rescue 5)
             );
             issue.number = opened_issue["number"].to_i
             issue.origin = "github"
             issue.repository = @repository
   
             if !issue.save
-              logger.warn "=====>ERRORS TO SAVING ISSUE:", issue.errors.full_messages
+              logger.warn "=====>ERRORS TO SAVING ISSUE: #{issue.errors.full_messages}"
             end
           rescue
             logger.error "#{$!}\n#{$@.join("\n")}"
@@ -678,7 +682,7 @@ class ApplicationController < ActionController::Base
             to_save = true 
           end
           if to_save and !issue.save
-            logger.warn "=====>ERRORS TO UPDATE ISSUE:", issue.errors.full_messages 
+            logger.warn "=====>ERRORS TO UPDATE ISSUE: #{issue.errors.full_messages }"
           elsif to_save
             logger.warn "Issue id #{issue.id} updated!" 
           end

@@ -174,25 +174,103 @@ class ContractsController < ApplicationController
       valor = params[:valor]
       projeto_id = params[:project_id]
       contracts_id = params[:contract_id]
-      contrato = Contract.find(contracts_id)
-      puts "valor #{valor}"
-      puts " valor parse #{ (-1 * valor.to_i).to_s } "
+      contrato_id = Contract.find(contracts_id)
 
       [12,23].each do |activity|
-          te = TimeEntry.new :user => User.find(29), :activity => TimeEntryActivity.find(activity)
-          te.project_id = projeto_id
-          te.spent_on = Time.now
-          te.comments = "Pagamento"
-          te.hours = activity == 12 ? (-1 * valor.to_i).to_s : valor
-          te.contract = contrato
-          te.save!
-          p "SALVO!"
+          timeEntrie = TimeEntry.new :user => User.find(29), :activity => TimeEntryActivity.find(activity)
+          timeEntrie.project_id = projeto_id
+          timeEntrie.spent_on = Time.now
+          timeEntrie.comments = "Pagamento"
+          timeEntrie.hours = activity == 12 ? (-1 * valor.to_i).to_s : valor
+          timeEntrie.contract = contrato_id
+          timeEntrie.save!
       end
-    begin
 
-    end
+      contrato = Contract.find(contracts_id)
+      contrato.purchase_amount += valor.to_f
+      contrato.description += "\r\n#{Time.now.strftime('%d/%m/%Y')} - R$ #{'%.2f' % valor}"
+      contrato.save!
 
-    redirect_to "/projects/#{projeto_id}/contracts/#{contracts_id}"
+      #Contabilizando o valor no projeto contabil ou contas
+      tipo = Project.find(projeto_id).custom_field_values.first
+      if tipo
+        timeEntry = TimeEntry.new :user => User.find(29)
+        timeEntry.spent_on = Time.now
+        timeEntry.comments = "Pagamento #{contrato.project.name}"
+        timeEntry.hours = valor
+        if tipo == 'contabil'
+            timeEntry.activity = TimeEntryActivity.find(12)
+            timeEntry.project_id = 48
+            timeEntry.contract = Contract.find(93)
+        else
+            timeEntry.activity = TimeEntryActivity.find(12)
+            timeEntry.project_id = 11
+            timeEntry.contract = Contract.find(17)
+        end
+        timeEntry.save!
+      end
+
+      redirect_to "/projects/#{projeto_id}/contracts/#{contracts_id}"
+  end
+
+  def gerar_pagamentos(ano=nil, mes=nil)
+      ano ||= Time.now.year
+      mes ||= Time.now.month
+
+      project_id = params[:project_id]
+      contract_id = params[:contract_id]
+
+      users = {
+          4=>{:hora=>6.0, :ciee=>550}, #Lucão
+          22=>{:hora=>8.0, :ciee=>550}, #Tafarel
+          27=>{:hora=>7.5, :ciee=>0},   #Mitrut
+          32=>{:hora=>7.5, :ciee=>550}  #Rafagnin
+      }
+
+      horas = {}
+      time_entries = TimeEntry.on_project(Project.find(10), true).spent_between(Time.mktime(ano,mes-1,1), Time.mktime(ano,mes,1))
+      time_entries.group_by{|t|t.user_id}.each{|a,c| horas[a] = c.sum{|k| k.hours}}
+
+      users.each do |k,v|
+          t = TimeEntry.new :user => User.find(5), :contract => Contract.find(81), :activity => TimeEntryActivity.find(47)
+          t.project_id = 11
+          t.spent_on = Time.mktime(ano, mes, 5)
+          t.comments = "Pagamento #{User.find(k).name} #{mes-1}/#{ano}"
+          t.hours = horas[k] * v[:hora] - v[:ciee]
+          t.save
+      end
+
+      if contract_id
+        redirect_to "/projects/#{project_id}/contracts/#{contract_id}"
+      else
+        redirect_to "/projects/#{project_id}/contracts"
+      end
+  end
+
+  def gerar_pagamentos_administrativo(ano=nil, mes=nil)
+      ano ||= Time.now.year
+      mes ||= Time.now.month
+      project_id = params[:project_id]
+      contract_id = params[:contract_id]
+
+      {5 => 46, 10 => 47}.each do |k, c|
+          ct = Contract.find(c)
+          t = TimeEntry.new :user => User.find(5), :contract => Contract.find(81), :activity => TimeEntryActivity.find(50)
+          t.project_id = 11
+          t.spent_on = Time.mktime(ano, mes, 1)
+          t.comments = "Administrativo #{User.find(k).name} #{mes -1}/#{ano}"
+          t.hours = -ct.amount_remaining
+          t.save!
+          ct.description += "#{Time.now.strftime('%d/%m/%Y')} - R$#{- ct.amount_remaining}"
+          ct.purchase_amount -= ct.amount_remaining
+          ct.save!
+      end
+
+      if contract_id
+        redirect_to "/projects/#{project_id}/contracts/#{contract_id}"
+      else
+        redirect_to "/projects/#{project_id}/contracts"
+      end
   end
 
   private

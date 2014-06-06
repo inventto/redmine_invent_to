@@ -1,7 +1,10 @@
 # Plugin's routes
 # See: http://guides.rubyonrails.org/routing.html
 #
-
+match "projects/:project_id/contracts(/:contract_id)/payment_administrative" => "contracts#gerar_pagamentos_administrativo"
+match "projects/:project_id/contracts(/:contract_id)/payment_intern" => "contracts#gerar_pagamentos"
+get "provisionamentos/index"
+match 'provisionamentos/gerar' => 'provisionamentos#importar', :via => :post
 match 'projects/:project_id/contracts/:contract_id/payment' => 'contracts#contabilizar_pagamentos', :via => :post
 match 'contracts/all'                                       => 'contracts#all',     :via => :get
 match 'contracts/:id'                                       => 'contracts#destroy', :via => :delete

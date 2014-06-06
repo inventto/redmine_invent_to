@@ -12,6 +12,21 @@
       <p><%= l(:label_or) %></p>
       <p class="blue bigbold">~<%= l_hours @total_remaining_hours %></p>
     </td>
+    <% if User.current.admin?%>
+    <td>
+        <h3>Adminitrativo</h3>
+        <div class="provisionamentos">
+            <%= link_to "Provisionamentos", provisionamentos_index_path() %>
+        </div>
+
+        <div class="pagamento_estagiario">
+            <%= link_to "Gerar Pagamentos estágiarios", "/projects/#{params[:project_id]}/contracts/payment_intern", { confirm: "você tem certeza disso #{User.current.login}?" } %>
+        </div>
+        <div class="pagamento_administrativo">
+            <%= link_to "Gerar pagamento administrativo", "/projects/#{params[:project_id]}/contracts/payment_administrative", {confirm:"você tem certeza disso #{User.current.login}?"} %>
+        </div>
+    </td>
+    <%end%>
   </tr>
 </table>
 <br />

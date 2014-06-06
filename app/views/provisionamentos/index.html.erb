@@ -1,0 +1,30 @@
+<h1>Provisionamentos</h1>
+<%= button_to "Gerar", provisionamentos_gerar_path()%>
+
+<h3>Tabela de Provisionamentos</h3>
+<%= content_tag :table, :class => "time-entries-for-contract-list list" do %>
+  <%= content_tag :thead do%>
+    <%= content_tag :tr do%>
+      <%= content_tag :th, 'Data' %>
+      <%= content_tag :th, 'Membro' %>
+      <%= content_tag :th, 'Projeto' %>
+      <%= content_tag :th, 'Atividade' %>
+      <%= content_tag :th, 'Comentário' %>
+      <%= content_tag :th, 'Total' %>
+    <% end %>
+  <% end %>
+  <%= content_tag :tbody do %>
+    <% File.readlines('provisionamento.csv').each do |line|  %>
+      <% next if not line %>
+      <% v = line.chomp.split(",") %>
+      <%= content_tag :tr, :class => cycle("odd", "even") do %>
+        <%= content_tag :td, "#{v[0].to_i}/#{Time.now.month}/#{Time.now.year}"%>
+        <%= content_tag :td, User.find(5) %>
+        <%= content_tag :td, Project.find(v[1].to_i).name %>
+        <%= content_tag :td, TimeEntryActivity.find(v[3].to_i).name %>
+        <%= content_tag :td, "#{v[4]} #{Time.now.month - 1} / #{Time.now.year}" %>
+        <%= content_tag :td,  "R$ #{'%.2f' % v[5]}" %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

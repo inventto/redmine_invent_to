@@ -22,18 +22,18 @@
         <%= submit_tag "Contabilizar"%>
     </div>
 
-    <hr/>
     <% if @project.id == 11 %>
+
+        <hr/>
+        <h3>Processos Administrativo</h3>
         <div class="provisionamentos">
             <%= link_to "Provisionamentos", provisionamentos_index_path() %>
         </div>
 
         <div class="pagamento_estagiario">
-            <%= link_to "Gerar Pagamentos estágiarios", "/projects/#{@project.id}/contracts/#{@contract.id}/payment_intern", { confirm: "você tem certeza disso #{User.current.login}?" } %>
+        <%= link_to "Pagamentos Estagiários", trainees_payments_index_path() %>
         </div>
-        <div class="pagamento_administrativo">
-            <%= link_to "Gerar pagamento administrativo", "/projects/#{@project.id}/contracts/#{@contract.id}/payment_administrative", {confirm: "você tem certeza disso #{User.current.login}?"} %>
-        </div>
+        <hr/>
     <% end %>
 <% end %>
 <div>

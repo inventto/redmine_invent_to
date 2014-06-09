@@ -22,7 +22,7 @@
         <%= content_tag :td, User.find(5) %>
         <%= content_tag :td, Project.find(v[1].to_i).name %>
         <%= content_tag :td, TimeEntryActivity.find(v[3].to_i).name %>
-        <%= content_tag :td, "#{v[4]} #{Time.now.month - 1} / #{Time.now.year}" %>
+        <%= content_tag :td, "#{v[4]} #{Time.now.month} / #{Time.now.year}" %>
         <%= content_tag :td,  "R$ #{'%.2f' % v[5]}" %>
       <% end %>
     <% end %>

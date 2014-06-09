@@ -1,6 +1,7 @@
 # Plugin's routes
 # See: http://guides.rubyonrails.org/routing.html
 #
+match "trainees_payments/index" => "trainees_payments#index", :via => :get
 match "projects/:project_id/contracts(/:contract_id)/payment_administrative" => "contracts#gerar_pagamentos_administrativo"
 match "projects/:project_id/contracts(/:contract_id)/payment_intern" => "contracts#gerar_pagamentos"
 get "provisionamentos/index"

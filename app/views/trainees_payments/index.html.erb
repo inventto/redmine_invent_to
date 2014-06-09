@@ -1,0 +1,25 @@
+<h1>Pagamentos estagiários</h1>
+<%= button_to "Gerar Pagamentos estágiarios", "/projects/11/contracts/payment_intern", { confirm: "você tem certeza disso #{User.current.login}?" } %>
+<h3>Tabela de pagamentos</h3>
+<%= content_tag :table, :class => "time-entries-for-contract-list list" do %>
+  <%= content_tag :thead do%>
+    <%= content_tag :tr do%>
+      <%= content_tag :th, 'Data' %>
+      <%= content_tag :th, 'Membro' %>
+      <%= content_tag :th, 'Projeto' %>
+      <%= content_tag :th, 'Comentário' %>
+      <%= content_tag :th, 'Total' %>
+    <% end %>
+  <% end %>
+  <%= content_tag :tbody do%>
+    <% @users.each do |k,v|%>
+      <%= content_tag :tr, :class => cycle("odd", "even") do%>
+        <%= content_tag :td, Time.now.strftime('%d/%m/%Y')%>
+        <%= content_tag :td, User.find(5) %>
+        <%= content_tag :td, Project.find(11) %>
+        <%= content_tag :td, TimeEntry.where(:comments => "Pagamento #{User.find(k).name} #{@mes-1}/#{@ano}").first.comments %>
+        <%= content_tag :td, @horas[k] * v[:hora] - v[:ciee] %>
+      <% end %>
+    <% end %>
+  <% end %>
+<%end%>

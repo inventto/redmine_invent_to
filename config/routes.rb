@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 RedmineApp::Application.routes.draw do
+  get "trainees_payments/index"
+
   get "payment_intern/index"
 
   get "provisionamentos/index"

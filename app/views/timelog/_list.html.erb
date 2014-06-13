@@ -14,6 +14,7 @@
 <%= sort_header_tag('user', :caption => l(:label_member)) %>
 <%= sort_header_tag('activity', :caption => l(:label_activity)) %>
 <%= sort_header_tag('project', :caption => l(:label_project)) %>
+<%= sort_header_tag('contrato', :caption => l(:label_contract)) %>
 <%= sort_header_tag('issue', :caption => l(:label_issue), :default_order => 'desc') %>
 <th><%= l(:field_comments) %></th>
 <%= sort_header_tag('hours', :caption => l(:field_hours)) %>
@@ -29,6 +30,7 @@
 <td class="user"><%= link_to_user(entry.user) %></td>
 <td class="activity"><%=h entry.activity %></td>
 <td class="project"><%= link_to_project(entry.project) %></td>
+<td class="contract"><%= entry.contract.title %></td>
 <td class="subject">
 <% if entry.issue -%>
 <%= entry.issue.visible? ? link_to_issue(entry.issue, :truncate => 50) : "##{entry.issue.id}" -%>
@@ -37,6 +39,7 @@
 <td class="comments"><%=h entry.comments %></td>
 <td class="hours"><%= html_hours("%.2f" % entry.hours) %></td>
 <td class="cost">R$ <%= entry.cost %></td>
+<td>
 <td align="center">
 <% if entry.editable_by?(User.current) -%>
     <%= link_to image_tag('edit.png'), edit_time_entry_path(entry),

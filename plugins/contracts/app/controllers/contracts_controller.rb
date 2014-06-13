@@ -181,7 +181,7 @@ class ContractsController < ApplicationController
           timeEntrie.project_id = projeto_id
           timeEntrie.spent_on = Time.now
           timeEntrie.comments = "Pagamento"
-          timeEntrie.hours = activity == 12 ? (-1 * valor.to_i).to_s : valor
+          timeEntrie.hours = activity == 12 ? (-1 * valor.to_f) : valor
           timeEntrie.contract = contrato_id
           timeEntrie.save!
       end
@@ -191,19 +191,19 @@ class ContractsController < ApplicationController
       contrato.description += "\r\n#{Time.now.strftime('%d/%m/%Y')} - R$ #{'%.2f' % valor}"
       contrato.save!
 
-      #Contabilizando o valor no projeto contabil ou contas
+      #Contabilizando o valor no projeto contabil ou prestação de contas
       tipo = Project.find(projeto_id).custom_field_values.first
       if tipo
-        timeEntry = TimeEntry.new :user => User.find(29)
+        timeEntry = TimeEntry.new :user => User.find(5)
         timeEntry.spent_on = Time.now
         timeEntry.comments = "Pagamento #{contrato.project.name}"
-        timeEntry.hours = valor
+        timeEntry.hours = (-1 * valor.to_f)
         if tipo == 'contabil'
-            timeEntry.activity = TimeEntryActivity.find(12)
+            timeEntry.activity = TimeEntryActivity.find(46)
             timeEntry.project_id = 48
             timeEntry.contract = Contract.find(93)
         else
-            timeEntry.activity = TimeEntryActivity.find(12)
+            timeEntry.activity = TimeEntryActivity.find(46)
             timeEntry.project_id = 11
             timeEntry.contract = Contract.find(17)
         end
@@ -237,7 +237,7 @@ class ContractsController < ApplicationController
           t.spent_on = Time.mktime(ano, mes, 5)
           t.comments = "Pagamento #{User.find(k).name} #{mes-1}/#{ano}"
           t.hours = horas[k] * v[:hora] - v[:ciee]
-          t.save
+          t.save!
       end
 
       if contract_id

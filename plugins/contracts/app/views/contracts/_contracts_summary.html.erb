@@ -13,7 +13,7 @@
       <p class="blue bigbold">~<%= l_hours @total_remaining_hours %></p>
     </td>
     <% if User.current.admin?%>
-        <% if params[:project_id].to_i == 11 or params[:project_id].to_i == 48 %>
+        <% if params[:project_id].to_i == 11 or params[:project_id].to_i == 48 or params[:project_id].eql? "prestacao_de_contas" or params[:project_id].eql? "contabil" %>
             <td>
                 <h3>Administrativo</h3>
                 <div class="provisionamentos">
